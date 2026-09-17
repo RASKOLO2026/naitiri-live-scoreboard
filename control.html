@@ -39,12 +39,13 @@ input,select,button{width:100%;padding:10px;border-radius:7px;border:1px solid #
 const TOPIC="naitiri/news/live/c1748005b0381c3a";
 let S={home:0,away:0,seconds:0,teamA:'HOME TEAM',teamB:'AWAY TEAM',logoA:'A',logoB:'B',period:'1ST HALF',extra:'',events:[],pa:50,pb:50,sha:0,shb:0,toa:0,tob:0,ca:0,cb:0};
 let timer=null;
+let gotState=false;
 const status=document.getElementById('status');
 const client=mqtt.connect('wss://broker.emqx.io:8084/mqtt',{clientId:'naitiri_control_'+Math.random().toString(16).slice(2),keepalive:60,reconnectPeriod:2000});
-client.on('connect',()=>{status.textContent='🟢 LIVE SERVER CONNECTED';status.style.color='#20d46b';client.subscribe(TOPIC); publish();});
+client.on('connect',()=>{status.textContent='🟢 LIVE SERVER CONNECTED';status.style.color='#20d46b';client.subscribe(TOPIC,()=>{setTimeout(()=>{if(!gotState)publish();},1000);});});
 client.on('reconnect',()=>status.textContent='🟡 Reconnecting...');
 client.on('error',()=>{status.textContent='🔴 Connection error';});
-client.on('message',(t,p)=>{try{S=JSON.parse(p.toString());syncInputs();}catch(e){}});
+client.on('message',(t,p)=>{try{S=JSON.parse(p.toString());gotState=true;syncInputs();}catch(e){}});
 function publish(){if(client.connected)client.publish(TOPIC,JSON.stringify(S),{qos:1,retain:true});}
 function save(){publish();}
 function syncInputs(){a.value=S.teamA;b.value=S.teamB;la.value=S.logoA;lb.value=S.logoB;period.value=S.period;extra.value=S.extra;pa.value=S.pa;pb.value=S.pb;sha.value=S.sha;shb.value=S.shb;toa.value=S.toa;tob.value=S.tob;ca.value=S.ca;cb.value=S.cb;}
