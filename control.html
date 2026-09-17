@@ -1,1 +1,64 @@
-<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Naitiri News Control</title><style>body{font-family:Arial;background:#071522;color:#fff;margin:0;padding:12px}.box{max-width:500px;margin:auto;background:#0c1e2d;padding:14px;border-radius:12px}h2{color:#20d46b}.g{display:grid;grid-template-columns:1fr 1fr;gap:7px}input,select,button{width:100%;padding:10px;border-radius:7px;border:1px solid #456;background:#10283a;color:#fff;font-weight:700;box-sizing:border-box}.wide{grid-column:1/-1}.go{background:#20d46b;color:#03100a}.red{background:#d9213d}.small{font-size:12px;color:#b5c3ce}#status{padding:8px;background:#06111c;border-radius:7px;margin-bottom:8px}</style></head><body><div class='box'><h2>NAITIRI NEWS CONTROL</h2><div id='status'>Broadcast page connected through shared browser storage.</div><div class='g'><input id='a' value='HOME TEAM'><input id='b' value='AWAY TEAM'><input id='la' value='A' maxlength='3'><input id='lb' value='B' maxlength='3'><button class='wide go' onclick='teams()'>UPDATE TEAMS</button><button onclick='goal(0)'>⚽ HOME GOAL</button><button onclick='goal(1)'>⚽ AWAY GOAL</button><button onclick='undo(0)'>− HOME GOAL</button><button onclick='undo(1)'>− AWAY GOAL</button><button class='go' onclick='start()'>▶ START</button><button onclick='pause()'>Ⅱ PAUSE</button><button onclick='reset()'>↺ RESET</button><select id='period' onchange='setPeriod()'><option>1ST HALF</option><option>HALF TIME</option><option>2ND HALF</option><option>FULL TIME</option></select><input id='event' class='wide' placeholder="23' Goal - Player"><button class='wide' onclick='eventAdd()'>ADD EVENT</button><select id='ct'><option>🟨 Yellow Card</option><option>🟥 Red Card</option></select><input id='cp' placeholder='Player name'><select id='team'><option>HOME</option><option>AWAY</option></select><button onclick='card()'>ADD CARD</button><input id='out' placeholder='Player OUT'><input id='inn' placeholder='Player IN'><button onclick='sub()'>ADD SUB</button><input id='pa' type='number' value='50'><input id='pb' type='number' value='50'><input id='sha' type='number' value='0'><input id='shb' type='number' value='0'><input id='toa' type='number' value='0'><input id='tob' type='number' value='0'><input id='ca' type='number' value='0'><input id='cb' type='number' value='0'><button class='wide' onclick='stats()'>UPDATE STATS</button><input id='extra' class='wide' placeholder='Added time e.g. 5:00'><button class='wide' onclick='addTime()'>SET ADDED TIME</button></div><p class='small'>Important: this controller uses browser shared storage. If PRISM isolates Web storage from Chrome, the two pages will not sync; we will test that before using it live.</p></div><script>let S=JSON.parse(localStorage.getItem('naitiriState')||'null')||{home:0,away:0,seconds:0,teamA:'HOME TEAM',teamB:'AWAY TEAM',logoA:'A',logoB:'B',period:'1ST HALF',extra:'',events:[],pa:50,pb:50,sha:0,shb:0,toa:0,tob:0,ca:0,cb:0};let timer=null;function save(){localStorage.setItem('naitiriState',JSON.stringify(S))}function teams(){S.teamA=a.value||'HOME TEAM';S.teamB=b.value||'AWAY TEAM';S.logoA=la.value||'A';S.logoB=lb.value||'B';save()}function goal(x){x?S.away++:S.home++;S.events.unshift('⚽ '+(x?'AWAY':'HOME')+' GOAL');save()}function undo(x){x?S.away=Math.max(0,S.away-1):S.home=Math.max(0,S.home-1);save()}function start(){if(timer)return;timer=setInterval(()=>{S.seconds++;save()},1000)}function pause(){clearInterval(timer);timer=null}function reset(){pause();S.seconds=0;save()}function setPeriod(){S.period=period.value;save()}function eventAdd(){if(event.value){S.events.unshift(event.value);event.value='';save()}}function card(){S.events.unshift(ct.value+' '+team.value+' — '+(cp.value||'Player'));cp.value='';save()}function sub(){S.events.unshift('🔄 '+(team.value)+' SUB — OUT: '+(out.value||'Player OUT')+' | IN: '+(inn.value||'Player IN'));out.value='';inn.value='';save()}function stats(){S.pa=+pa.value||0;S.pb=+pb.value||0;S.sha=+sha.value||0;S.shb=+shb.value||0;S.toa=+toa.value||0;S.tob=+tob.value||0;S.ca=+ca.value||0;S.cb=+cb.value||0;save()}function addTime(){S.extra=extra.value;save()}save()</script></body></html>
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Naitiri News Control</title>
+<style>
+body{font-family:Arial;background:#071522;color:#fff;margin:0;padding:12px}
+.box{max-width:500px;margin:auto;background:#0c1e2d;padding:14px;border-radius:12px}
+h2{color:#20d46b} .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+input,select,button{width:100%;padding:10px;border-radius:7px;border:1px solid #456;background:#10283a;color:#fff;font-weight:700;box-sizing:border-box}
+.wide{grid-column:1/-1} .go{background:#20d46b;color:#03100a} .small{font-size:12px;color:#b5c3ce}
+#status{padding:8px;background:#06111c;border-radius:7px;margin-bottom:8px}
+</style></head><body><div class="box">
+<h2>NAITIRI NEWS CONTROL</h2>
+<div id="status">Connecting to live server...</div>
+<div class="g">
+<input id="a" value="HOME TEAM"><input id="b" value="AWAY TEAM">
+<input id="la" value="A" maxlength="3"><input id="lb" value="B" maxlength="3">
+<button class="wide go" onclick="teams()">UPDATE TEAMS</button>
+<button onclick="goal(0)">⚽ HOME GOAL</button><button onclick="goal(1)">⚽ AWAY GOAL</button>
+<button onclick="undo(0)">− HOME GOAL</button><button onclick="undo(1)">− AWAY GOAL</button>
+<button class="go" onclick="start()">▶ START</button><button onclick="pause()">Ⅱ PAUSE</button>
+<button onclick="reset()">↺ RESET</button>
+<select id="period" onchange="setPeriod()"><option>1ST HALF</option><option>HALF TIME</option><option>2ND HALF</option><option>FULL TIME</option></select>
+<input id="event" class="wide" placeholder="23' Goal - Player"><button class="wide" onclick="eventAdd()">ADD EVENT</button>
+<select id="ct"><option>🟨 Yellow Card</option><option>🟥 Red Card</option></select>
+<input id="cp" placeholder="Player name"><select id="team"><option>HOME</option><option>AWAY</option></select>
+<button onclick="card()">ADD CARD</button>
+<input id="out" placeholder="Player OUT"><input id="inn" placeholder="Player IN"><button onclick="sub()">ADD SUB</button>
+<input id="pa" type="number" value="50"><input id="pb" type="number" value="50">
+<input id="sha" type="number" value="0"><input id="shb" type="number" value="0">
+<input id="toa" type="number" value="0"><input id="tob" type="number" value="0">
+<input id="ca" type="number" value="0"><input id="cb" type="number" value="0">
+<button class="wide" onclick="stats()">UPDATE STATS</button>
+<input id="extra" class="wide" placeholder="Added time e.g. 5:00"><button class="wide" onclick="addTime()">SET ADDED TIME</button>
+</div>
+<p class="small">Live connection: secure MQTT over WebSocket. Keep this page open while controlling the PRISM broadcast.</p>
+</div>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script>
+const TOPIC="naitiri/news/live/c1748005b0381c3a";
+let S={home:0,away:0,seconds:0,teamA:'HOME TEAM',teamB:'AWAY TEAM',logoA:'A',logoB:'B',period:'1ST HALF',extra:'',events:[],pa:50,pb:50,sha:0,shb:0,toa:0,tob:0,ca:0,cb:0};
+let timer=null;
+const status=document.getElementById('status');
+const client=mqtt.connect('wss://broker.emqx.io:8084/mqtt',{clientId:'naitiri_control_'+Math.random().toString(16).slice(2),keepalive:60,reconnectPeriod:2000});
+client.on('connect',()=>{status.textContent='🟢 LIVE SERVER CONNECTED';status.style.color='#20d46b';client.subscribe(TOPIC); publish();});
+client.on('reconnect',()=>status.textContent='🟡 Reconnecting...');
+client.on('error',()=>{status.textContent='🔴 Connection error';});
+client.on('message',(t,p)=>{try{S=JSON.parse(p.toString());syncInputs();}catch(e){}});
+function publish(){if(client.connected)client.publish(TOPIC,JSON.stringify(S),{qos:1,retain:true});}
+function save(){publish();}
+function syncInputs(){a.value=S.teamA;b.value=S.teamB;la.value=S.logoA;lb.value=S.logoB;period.value=S.period;extra.value=S.extra;pa.value=S.pa;pb.value=S.pb;sha.value=S.sha;shb.value=S.shb;toa.value=S.toa;tob.value=S.tob;ca.value=S.ca;cb.value=S.cb;}
+function teams(){S.teamA=a.value||'HOME TEAM';S.teamB=b.value||'AWAY TEAM';S.logoA=la.value||'A';S.logoB=lb.value||'B';save();}
+function goal(x){x?S.away++:S.home++;S.events.unshift('⚽ '+(x?'AWAY':'HOME')+' GOAL');save();}
+function undo(x){x?S.away=Math.max(0,S.away-1):S.home=Math.max(0,S.home-1);save();}
+function start(){if(timer)return;timer=setInterval(()=>{S.seconds++;publish();},1000);}
+function pause(){clearInterval(timer);timer=null;publish();}
+function reset(){pause();S.seconds=0;save();}
+function setPeriod(){S.period=period.value;save();}
+function eventAdd(){if(event.value){S.events.unshift(event.value);event.value='';save();}}
+function card(){S.events.unshift(ct.value+' '+team.value+' — '+(cp.value||'Player'));cp.value='';save();}
+function sub(){S.events.unshift('🔄 '+team.value+' SUB — OUT: '+(out.value||'Player OUT')+' | IN: '+(inn.value||'Player IN'));out.value='';inn.value='';save();}
+function stats(){S.pa=+pa.value||0;S.pb=+pb.value||0;S.sha=+sha.value||0;S.shb=+shb.value||0;S.toa=+toa.value||0;S.tob=+tob.value||0;S.ca=+ca.value||0;S.cb=+cb.value||0;save();}
+function addTime(){S.extra=extra.value;save();}
+syncInputs();
+</script></body></html>
